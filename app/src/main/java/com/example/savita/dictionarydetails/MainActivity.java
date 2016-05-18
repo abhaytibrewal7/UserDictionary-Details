@@ -7,41 +7,40 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private static final String[] COLUMNS_TO_BE_BOUND = new String[]{
+        UserDictionary.Words.WORD,
+        UserDictionary.Words.FREQUENCY
+    };
+    private static final int[] LAYOUT_ITEMS_TO_FILL = new int[]{
+            android.R.id.text1,
+            android.R.id.text2
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TextView dictTextView = (TextView)findViewById(R.id.dictionary_text_view);
+        ListView dictListView = (ListView)findViewById(R.id.dictionary_list_view);
 
         ContentResolver resolver = getContentResolver();
         Cursor cursor = resolver.query(UserDictionary.Words.CONTENT_URI, null, null, null, null);
 
-        try{
-            dictTextView.setText("The UserDictionary contains " + cursor.getCount() + " words\n");
-            dictTextView.append("COLUMNS: " + UserDictionary.Words._ID + " - " + UserDictionary.Words.FREQUENCY + " - "
-                    + UserDictionary.Words.WORD);
 
-            int idColumn = cursor.getColumnIndex(UserDictionary.Words._ID);
-            int frequencyColumn = cursor.getColumnIndex(UserDictionary.Words.FREQUENCY);
-            int wordColumn = cursor.getColumnIndex(UserDictionary.Words.WORD);
-
-            while(cursor.moveToNext()){
-
-                int id = cursor.getInt(idColumn);
-                int frequency = cursor.getInt(frequencyColumn);
-                String word = cursor.getString(wordColumn);
-
-                dictTextView.append("\n" + id + "  - " + frequency + " - " + word);
-            }
-        }finally {
-            cursor.close();
-        }
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
+                android.R.layout.two_line_list_item,
+                cursor,
+                COLUMNS_TO_BE_BOUND,
+                LAYOUT_ITEMS_TO_FILL,
+                0);
+        dictListView.setAdapter(adapter);
     }
 
 
